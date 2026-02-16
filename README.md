@@ -4,9 +4,12 @@ Isolated Docker containers for running [Claude Code](https://docs.anthropic.com/
 
 Project files are bind-mounted so they persist on the host. Containers are long-lived (stop/start). Everything is managed through a Justfile.
 
+## Project origin
+This is a modified fork of the [claude-container](https://github.com/paulgp/claude-container) project.
+
 ## Prerequisites
 
-- macOS (Apple Silicon or Intel)
+- macOS (Apple Silicon)
 - [Homebrew](https://brew.sh)
 - [just](https://github.com/casey/just) — `brew install just`
 - A [Claude Pro or Max subscription](https://claude.ai), **or** an [Anthropic API key](https://console.anthropic.com/)
@@ -21,7 +24,7 @@ just setup
 just build
 
 # 3. Create a project
-just create my-project
+just create my-project                     # or: just create my-project /path/to/dir
 
 # 4a. Subscription users: log in once per container
 just login my-project
@@ -36,7 +39,7 @@ just claude my-project
 
 ## Tools Inside the Container
 
-git, python3, uv, Node.js 22, R, DuckDB, just, build-essential, Claude Code CLI.
+git, uv (Python), just, build-essential, Claude Code CLI.
 
 ## Recipes
 
@@ -45,14 +48,12 @@ git, python3, uv, Node.js 22, R, DuckDB, just, build-essential, Claude Code CLI.
 | `just setup` | Install Colima + Docker CLI, start VM |
 | `just build` | Build the container image |
 | `just rebuild` | Build without cache |
-| `just create <name> [-- DOCKER_ARGS]` | Create container with bind-mounted project dir |
+| `just create <name> [path] [-- DOCKER_ARGS]` | Create container with bind-mounted project dir |
 | `just start/stop/restart <name>` | Container lifecycle |
 | `just login <name>` | Log in with Claude subscription (once per container) |
 | `just shell <name>` | Open a bash shell (auto-starts) |
 | `just claude <name> [prompt]` | Run Claude in YOLO mode (auto-starts) |
 | `just claude-safe <name> [prompt]` | Run Claude with permission prompts |
-| `just cp-to <name> <src> <dest>` | Copy files from host to container |
-| `just cp-from <name> <src> <dest>` | Copy files from container to host |
 | `just destroy <name>` | Remove container (project files kept) |
 | `just list` | Show all claude containers |
 | `just logs <name>` | Show container logs |
@@ -64,7 +65,7 @@ git, python3, uv, Node.js 22, R, DuckDB, just, build-essential, Claude Code CLI.
 Pass additional mounts, ports, or env vars when creating a container:
 
 ```bash
-just create my-project -- -p 8080:8080 -e SECRET=val --mount type=bind,src=/data,dst=/data
+just create my-project /path/to/my-project -- -p 8080:8080 -e SECRET=val --mount type=bind,src=/data,dst=/data
 ```
 
 ## Using `ccr` From Anywhere
@@ -77,7 +78,7 @@ cp ccr ~/bin/ccr    # or /usr/local/bin/ccr
 chmod +x ~/bin/ccr
 ```
 
-If you cloned this repo somewhere other than `~/repos/claude-container`, set the path:
+If you cloned this repo somewhere other than `~/projects/claude-container`, set the path:
 
 ```bash
 # In your ~/.zshrc
@@ -88,7 +89,7 @@ Then use `ccr` instead of `just` from anywhere:
 
 ```bash
 ccr build
-ccr create my-project
+ccr create my-project      # uses cwd as project path
 ccr claude my-project
 ccr list
 ccr --recipes          # show all available recipes
@@ -98,7 +99,7 @@ ccr --recipes          # show all available recipes
 
 - **Colima** provides the Docker runtime (free, uses Apple Virtualization.framework)
 - Containers run `sleep infinity` and you `exec` into them
-- `/workspace` inside the container is bind-mounted to `projects/<name>/` on the host
+- `/workspace` inside the container is bind-mounted to the project directory you specify
 - **Subscription auth:** `just login <name>` runs `claude login` inside the container (once per container)
 - **API key auth:** the key flows from `.env` → just → `docker create -e ANTHROPIC_API_KEY`
-- `just destroy` removes the container but project files stay in `projects/`
+- `just destroy` removes the container but project files stay on the host

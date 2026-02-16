@@ -9,7 +9,6 @@
 - [Your First Project](#your-first-project)
 - [Working With Claude Inside the Container](#working-with-claude-inside-the-container)
 - [Managing Your Containers](#managing-your-containers)
-- [Moving Files In and Out](#moving-files-in-and-out)
 - [Use Cases for Academic Research](#use-cases-for-academic-research)
 - [Recipes Reference](#recipes-reference)
 - [Troubleshooting](#troubleshooting)
@@ -63,9 +62,9 @@ A **Justfile** is like a recipe book for your terminal. Instead of remembering l
 
 ### Bind Mounts (The Shared Folder)
 
-When you create a container, a folder is created on your Mac at `projects/<name>/`. This same folder appears inside the container at `/workspace`. Any file you put in either location instantly appears in the other.
+When you create a container, you provide the path to an existing project directory on your Mac. This directory appears inside the container at `/workspace`. Any file you put in either location instantly appears in the other.
 
-This is how your work survives even if the container is destroyed. The container is disposable; the project folder is permanent.
+This is how your work survives even if the container is destroyed. The container is disposable; the project directory is permanent.
 
 ### YOLO Mode
 
@@ -87,7 +86,7 @@ There are two ways to use Claude Code:
 
 ## What You Need Before Starting
 
-1. **A Mac** with Apple Silicon (M1/M2/M3/M4). Intel Macs may work but require manual Colima configuration — see Troubleshooting.
+1. **A Mac** with Apple Silicon (M1/M2/M3/M4).
 2. **Homebrew** — a package manager for Mac. If you don't have it, open Terminal and paste:
    ```bash
    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -104,6 +103,8 @@ There are two ways to use Claude Code:
 ## Installation: Step by Step
 
 ### Step 1: Download this project
+
+Open my fork of the [claude-container](https://github.com/gnarl/claude-container) github repo in your browser. Then select the "Fork" button to create a fork of this repository for your github account.
 
 Open Terminal and run:
 
@@ -134,7 +135,7 @@ cd /path/to/claude-container
 > chmod +x ~/bin/ccr
 > ```
 >
-> If you cloned this repo somewhere other than `~/repos/claude-container`, tell `ccr` where to find it by adding this line to your `~/.zshrc`:
+> If you cloned this repo somewhere other than `~/projects/claude-container`, tell `ccr` where to find it by adding this line to your `~/.zshrc`:
 >
 > ```bash
 > export CLAUDE_CONTAINER_DIR="$HOME/path/to/claude-container"
@@ -209,10 +210,7 @@ just build
 
 **What this does:** Docker reads the `Dockerfile` (the blueprint) and builds an image — a snapshot of a Linux system with all the tools pre-installed. This includes:
 
-- Python 3 and uv (a fast Python package manager)
-- Node.js 22 (for JavaScript)
-- R (for statistical computing)
-- DuckDB (a fast analytical database)
+- Python (via uv, a fast Python package manager)
 - git, just, and build tools
 - Claude Code CLI
 
@@ -225,13 +223,12 @@ The first build downloads a lot and takes several minutes. Future builds are muc
 ### Create a container
 
 ```bash
-just create my-first-project
+just create my-first-project /path/to/my-first-project
 ```
 
 **What this does:**
-1. Creates a folder on your Mac: `projects/my-first-project/`
-2. Creates a Docker container named `claude-my-first-project`
-3. Links the folder so the container can read and write to it
+1. Creates a Docker container named `claude-my-first-project`
+2. Binds your project directory to `/workspace` inside the container so the container can read and write to it
 
 The container is created but not yet running (think of it as a powered-off computer).
 
@@ -268,10 +265,10 @@ When you're done, press `Ctrl+C` or type `/exit` to leave Claude. The container 
 
 ### Verify your files are shared
 
-While Claude is running (or after, using `just shell`), any files Claude creates in `/workspace` will appear on your Mac in `projects/my-first-project/`. Try it:
+While Claude is running (or after, using `just shell`), any files Claude creates in `/workspace` will appear in your project directory on your Mac. Try it:
 
 ```bash
-ls projects/my-first-project/
+ls /path/to/my-first-project/
 ```
 
 The `ls` command means "list" — it shows the files in a folder. You'll see whatever Claude created.
@@ -317,11 +314,10 @@ just claude my-project
 
 Claude has access to everything a regular Linux user would:
 
-- **Read and write files** in `/workspace` (your shared project folder)
-- **Run Python, R, Node.js, or shell scripts**
-- **Install packages** (`uv pip install pandas`, `npm install express`, `R -e 'install.packages("ggplot2")'`)
+- **Read and write files** in `/workspace` (your shared project directory)
+- **Run Python or shell scripts**
+- **Install packages** (`uv pip install pandas`, `sudo apt-get install -y <package>`)
 - **Use git** to manage version control
-- **Query databases** with DuckDB
 - **Access the internet** to download data or packages
 - **Use `sudo`** (run as administrator) to install system-level software
 
@@ -409,26 +405,14 @@ Shows the internal log output from the container. Mostly useful for debugging.
 
 ---
 
-## Moving Files In and Out
+## Shared Files
 
-### The easy way: the shared folder
+Your project directory on your Mac is automatically available at `/workspace` inside the container, and vice versa. For most workflows, this is all you need:
 
-Anything in `projects/my-project/` on your Mac is automatically in `/workspace` inside the container, and vice versa. For most workflows, this is all you need:
+- Drop a CSV into `my-project/data/` on your Mac, and Claude can read it at `/workspace/data/`
+- Claude creates a report at `/workspace/output/report.pdf`, and you'll find it in `my-project/output/report.pdf`
 
-- Drop a CSV into `projects/my-project/data/` on your Mac, and Claude can read it at `/workspace/data/`
-- Claude creates a report at `/workspace/output/report.pdf`, and you'll find it at `projects/my-project/output/report.pdf`
-
-### Copying files to/from other locations in the container
-
-Sometimes you need to move files to/from places other than `/workspace` (for example, a config file in `/home/coder/`):
-
-```bash
-# Copy a file from your Mac into the container
-just cp-to my-project ./local-file.txt /home/coder/file.txt
-
-# Copy a file from the container to your Mac
-just cp-from my-project /home/coder/.bashrc ./container-bashrc.txt
-```
+You can also edit project files in VS Code on your Mac while a container is running — changes are reflected immediately in both directions.
 
 ### Advanced: Extra mounts at creation time
 
@@ -437,7 +421,7 @@ just cp-from my-project /home/coder/.bashrc ./container-bashrc.txt
 If you have a large dataset somewhere else on your Mac that you don't want to copy, you can mount it as a second shared folder when creating the container. The `--` tells `just` that everything after it is extra options to pass to Docker:
 
 ```bash
-just create my-project -- -v /Users/you/datasets:/data:ro
+just create my-project /path/to/my-project -- -v /Users/you/datasets:/data:ro
 ```
 
 Breaking down `-v /Users/you/datasets:/data:ro`:
@@ -448,6 +432,8 @@ Breaking down `-v /Users/you/datasets:/data:ro`:
 ---
 
 ## Use Cases for Academic Research
+
+> **This is a fork:** This is a fork of the [claude-container](https://github.com/paulgp/claude-container). DuckDB and R are no longer installed by default when creating a new container. The below examples have not been updated from when this fork was created. 
 
 > **Before each example:** Every use case below assumes you have already created a container for that project with `just create <name>`. See [Your First Project](#your-first-project) above. For example, before the first use case, you would run `just create data-analysis`.
 

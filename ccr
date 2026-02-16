@@ -6,7 +6,7 @@ set -euo pipefail
 
 # Set this to wherever you cloned claude-container, or override with the
 # environment variable CLAUDE_CONTAINER_DIR.
-CLAUDE_CONTAINER_DIR="${CLAUDE_CONTAINER_DIR:-$HOME/repos/claude-container}"
+CLAUDE_CONTAINER_DIR="${CLAUDE_CONTAINER_DIR:-$HOME/projects/claude-container}"
 
 if [[ ! -f "$CLAUDE_CONTAINER_DIR/Justfile" ]]; then
     echo "Error: claude-container not found at $CLAUDE_CONTAINER_DIR" >&2
