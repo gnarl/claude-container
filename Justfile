@@ -35,23 +35,26 @@ rebuild:
 # ── Container lifecycle ───────────────────────────────────────────
 
 # Create a new container with bind-mounted project dir
-create name *DOCKER_ARGS:
+create name path *DOCKER_ARGS:
     #!/usr/bin/env bash
     set -euo pipefail
     if docker inspect {{prefix}}{{name}} &>/dev/null; then
         echo "Container {{prefix}}{{name}} already exists. Use 'just destroy {{name}}' first."
         exit 1
     fi
-    mkdir -p "$(pwd)/projects/{{name}}"
+    if [ ! -d "{{path}}" ]; then
+        echo "Error: directory '{{path}}' does not exist."
+        exit 1
+    fi
     docker create \
         --name {{prefix}}{{name}} \
         --hostname {{name}} \
         -e ANTHROPIC_API_KEY \
-        -v "$(pwd)/projects/{{name}}:/workspace" \
+        -v "{{path}}:/workspace" \
         {{DOCKER_ARGS}} \
         {{image}} \
         sleep infinity
-    echo "Container {{prefix}}{{name}} created. Project dir: projects/{{name}}/"
+    echo "Container {{prefix}}{{name}} created. Bound {{path}} → /workspace"
 
 # Start a stopped container
 start name:
@@ -112,14 +115,6 @@ claude-safe name *PROMPT:
     else
         docker exec -it {{prefix}}{{name}} claude
     fi
-
-# Copy files from host to container
-cp-to name src dest:
-    docker cp {{src}} {{prefix}}{{name}}:{{dest}}
-
-# Copy files from container to host
-cp-from name src dest:
-    docker cp {{prefix}}{{name}}:{{src}} {{dest}}
 
 # Stop and remove a container (project files preserved on host)
 destroy name:

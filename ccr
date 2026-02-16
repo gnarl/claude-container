@@ -19,7 +19,8 @@ if [[ $# -eq 0 ]]; then
     echo ""
     echo "Examples:"
     echo "  ccr build                        Build the container image"
-    echo "  ccr create my-project            Create a new container"
+    echo "  ccr create my-project            Create container (binds cwd → /workspace)"
+    echo "  ccr create my-project ~/path     Create container (binds path → /workspace)"
     echo "  ccr claude my-project            Start Claude in YOLO mode"
     echo "  ccr claude my-project \"prompt\"    Run Claude with a prompt"
     echo "  ccr claude-safe my-project       Start Claude in safe mode"
@@ -37,6 +38,21 @@ fi
 if [[ "$1" == "--recipes" ]]; then
     just --justfile "$CLAUDE_CONTAINER_DIR/Justfile" --working-directory "$CLAUDE_CONTAINER_DIR" --list
     exit 0
+fi
+
+# For 'create', inject cwd as the path if only a name is given.
+# Usage: ccr create <name> [path] [docker_args...]
+if [[ "$1" == "create" && $# -ge 2 ]]; then
+    recipe="$1"
+    name="$2"
+    shift 2
+    if [[ $# -eq 0 ]]; then
+        # No path given — default to current directory
+        exec just --justfile "$CLAUDE_CONTAINER_DIR/Justfile" --working-directory "$CLAUDE_CONTAINER_DIR" "$recipe" "$name" "$(pwd)"
+    else
+        # Path (and possibly docker args) given — pass through as-is
+        exec just --justfile "$CLAUDE_CONTAINER_DIR/Justfile" --working-directory "$CLAUDE_CONTAINER_DIR" "$recipe" "$name" "$@"
+    fi
 fi
 
 exec just --justfile "$CLAUDE_CONTAINER_DIR/Justfile" --working-directory "$CLAUDE_CONTAINER_DIR" "$@"

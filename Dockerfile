@@ -1,4 +1,4 @@
-FROM debian:bookworm-slim
+FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -6,8 +6,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
         apt-utils git curl ca-certificates sudo \
         build-essential \
-        python3 python3-dev python3-venv \
-        r-base \
         locales \
     && sed -i 's/^# *\(en_US.UTF-8\)/\1/' /etc/locale.gen \
     && locale-gen \
@@ -15,31 +13,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 ENV LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
 
-# ── Node.js 22 via NodeSource ────────────────────────────────────
-RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
-    && apt-get install -y --no-install-recommends nodejs \
-    && rm -rf /var/lib/apt/lists/*
-
-# ── DuckDB CLI (architecture-aware) ─────────────────────────────
-ARG DUCKDB_VERSION=1.4.3
-RUN ARCH=$(dpkg --print-architecture) \
-    && curl -fsSL "https://github.com/duckdb/duckdb/releases/download/v${DUCKDB_VERSION}/duckdb_cli-linux-${ARCH}.zip" -o /tmp/duckdb.zip \
-    && apt-get update && apt-get install -y --no-install-recommends unzip \
-    && unzip /tmp/duckdb.zip -d /usr/local/bin \
-    && chmod +x /usr/local/bin/duckdb \
-    && rm /tmp/duckdb.zip \
-    && apt-get purge -y unzip && apt-get autoremove -y \
-    && rm -rf /var/lib/apt/lists/*
-
 # ── just ─────────────────────────────────────────────────────────
 RUN curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
 
 # ── Non-root user with passwordless sudo ─────────────────────────
-RUN useradd -m -s /bin/bash -u 1000 coder \
+ARG USER_UID=501
+ARG USER_GID=20
+RUN groupadd -g ${USER_GID} -o coder \
+    && useradd -m -s /bin/bash -u ${USER_UID} -g coder coder \
     && echo "coder ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/coder
 
 USER coder
 WORKDIR /home/coder
+
+# ── Git safe directory for bind mounts ───────────────────────────
+RUN git config --global --add safe.directory /workspace
 
 # ── uv (Python package manager) ─────────────────────────────────
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh

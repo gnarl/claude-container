@@ -1,6 +1,6 @@
 # Container Environment
 
-You are running inside an isolated Docker container (Debian bookworm). You have full root-equivalent access via passwordless sudo.
+You are running inside an isolated Docker container (ubuntu:24.04). You have full root-equivalent access via passwordless sudo.
 
 ## Directory Layout
 
@@ -13,9 +13,6 @@ You are running inside an isolated Docker container (Debian bookworm). You have 
 |------|---------------|
 | git | System package |
 | python3 + uv | Use `uv` for Python package/project management |
-| Node.js | v22 LTS via NodeSource |
-| R | r-base from Debian repos |
-| DuckDB | CLI binary |
 | just | Command runner |
 | build-essential | gcc, g++, make, etc. |
 | claude | Claude Code CLI |
@@ -29,11 +26,6 @@ sudo apt-get update && sudo apt-get install -y <package>
 # Python packages (prefer uv)
 uv pip install <package>
 
-# Node packages
-npm install -g <package>
-
-# R packages
-R -e 'install.packages("tidyverse", repos="https://cloud.r-project.org")'
 ```
 
 ## Tips
