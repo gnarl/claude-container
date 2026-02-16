@@ -36,8 +36,10 @@ rebuild:
 
 # Create a new container with bind-mounted project dir
 create name path *DOCKER_ARGS:
-    #!/usr/bin/env bash
+    #!/usr/bin/env bash 
     set -euo pipefail
+    echo "Attempting to create container {{prefix}}{{name}}. Bound {{path}} → /workspace"
+
     if docker inspect {{prefix}}{{name}} &>/dev/null; then
         echo "Container {{prefix}}{{name}} already exists. Use 'just destroy {{name}}' first."
         exit 1
@@ -120,7 +122,7 @@ claude-safe name *PROMPT:
 destroy name:
     -docker stop {{prefix}}{{name}} 2>/dev/null
     docker rm {{prefix}}{{name}}
-    @echo "Container removed. Project files preserved in projects/{{name}}/"
+    @echo "Container removed. Project files preserved on host."
 
 # ── Info / diagnostics ────────────────────────────────────────────
 
