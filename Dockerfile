@@ -41,4 +41,12 @@ RUN mkdir -p /home/coder/.claude
 COPY --chown=coder:coder config/claude-settings.json /home/coder/.claude/settings.json
 COPY --chown=coder:coder config/CLAUDE.md /home/coder/.claude/CLAUDE.md
 
+# ── Superpowers skills ────────────────────────────────────────────
+RUN mkdir -p /home/coder/.claude/skills \
+    && git clone --filter=blob:none --no-checkout https://github.com/obra/superpowers.git /tmp/superpowers \
+    && git -C /tmp/superpowers sparse-checkout set skills \
+    && git -C /tmp/superpowers checkout \
+    && cp -r /tmp/superpowers/skills/* /home/coder/.claude/skills/ \
+    && rm -rf /tmp/superpowers
+
 WORKDIR /workspace
