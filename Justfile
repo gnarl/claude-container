@@ -138,3 +138,13 @@ logs name:
 # Show resource usage for all claude containers
 stats:
     docker stats --no-stream --filter "name=^{{prefix}}"
+
+# Test that rtk is installed and configured correctly for Claude Code
+test:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    docker run --rm {{image}} bash -c "\
+        echo '=== rtk version ===' && rtk --version && \
+        echo '=== rtk gain ===' && rtk gain && \
+        echo '=== rtk init --show ===' && rtk init --show \
+    "
