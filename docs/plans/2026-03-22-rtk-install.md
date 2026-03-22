@@ -2,7 +2,7 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Status:** IN PROGRESS (Task 1 complete, Task 2 in progress)
+**Status:** IN PROGRESS (Tasks 1-3, 5 complete — awaiting Task 4: build + verify)
 
 **Goal:** Install and configure rtk (Rust Token Killer) in the claude-container Docker image to reduce token usage when Claude Code runs shell commands.
 
@@ -48,7 +48,7 @@ Files: `Justfile`
 
 ---
 
-### Task 2: Install rtk in the Dockerfile 🔄 IN PROGRESS
+### Task 2: Install rtk in the Dockerfile ✅ COMPLETE
 
 **Files:**
 - Modify: `Dockerfile`
@@ -97,7 +97,7 @@ Files: `Dockerfile`
 
 ---
 
-### Task 3: Update config/CLAUDE.md tools table
+### Task 3: Update config/CLAUDE.md tools table ✅ COMPLETE
 
 **Files:**
 - Modify: `config/CLAUDE.md`
@@ -133,7 +133,7 @@ Files: `config/CLAUDE.md`
 
 ---
 
-### Task 4: Build and verify
+### Task 4: Build and verify 🔄 IN PROGRESS (awaiting user to run just build + just test)
 
 **Step 1: Rebuild the image**
 
@@ -165,7 +165,7 @@ No new files. If tests pass, no commit needed for this task.
 
 ---
 
-### Task 5: Update README tools list
+### Task 5: Update README tools list ✅ COMPLETE
 
 **Files:**
 - Modify: `README.md`

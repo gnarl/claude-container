@@ -39,7 +39,7 @@ just claude my-project
 
 ## Tools Inside the Container
 
-git, uv (Python), just, build-essential, Claude Code CLI.
+git, uv (Python), just, build-essential, Claude Code CLI, rtk (token killer).
 
 ## Recipes
 
