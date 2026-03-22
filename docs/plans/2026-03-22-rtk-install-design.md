@@ -1,6 +1,6 @@
 # RTK (Rust Token Killer) Installation Design
 
-**Status:** APPROVED — implementation in progress (see 2026-03-22-rtk-install.md)
+**Status:** COMPLETE — implemented and verified (see 2026-03-22-rtk-install.md)
 
 ## Overview
 

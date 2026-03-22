@@ -2,7 +2,7 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Status:** IN PROGRESS (Tasks 1-3, 5 complete — awaiting Task 4: build + verify)
+**Status:** COMPLETE — all tasks done, build and tests passing
 
 **Goal:** Install and configure rtk (Rust Token Killer) in the claude-container Docker image to reduce token usage when Claude Code runs shell commands.
 
@@ -133,7 +133,7 @@ Files: `config/CLAUDE.md`
 
 ---
 
-### Task 4: Build and verify 🔄 IN PROGRESS (awaiting user to run just build + just test)
+### Task 4: Build and verify ✅ COMPLETE
 
 **Step 1: Rebuild the image**
 
