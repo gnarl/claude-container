@@ -49,4 +49,11 @@ RUN mkdir -p /home/coder/.claude/skills \
     && cp -r /tmp/superpowers/skills/* /home/coder/.claude/skills/ \
     && rm -rf /tmp/superpowers
 
+# ── RTK (Rust Token Killer) ───────────────────────────────────────
+# NOTE: Must run AFTER the config COPY steps above — rtk init patches
+#       /home/coder/.claude/settings.json in place and appends
+#       @RTK.md to /home/coder/.claude/CLAUDE.md.
+RUN curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/master/install.sh | sh \
+    && rtk init -g --auto-patch
+
 WORKDIR /workspace
