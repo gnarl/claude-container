@@ -16,6 +16,7 @@ You are running inside an isolated Docker container (ubuntu:24.04). You have ful
 | just | Command runner |
 | build-essential | gcc, g++, make, etc. |
 | claude | Claude Code CLI |
+| rtk | Transparent shell command token reducer (`rtk gain` for stats) |
 
 ## Installing Extra Packages
 
