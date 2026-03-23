@@ -13,6 +13,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 ENV LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
 
+# ── Go ──────────────────────────────────────────────────────────
+ARG GO_VERSION=1.24.1
+RUN arch=$(dpkg --print-architecture) \
+    && curl -fsSL "https://go.dev/dl/go${GO_VERSION}.linux-${arch}.tar.gz" \
+       | tar -C /usr/local -xz
+
+ENV PATH="/usr/local/go/bin:${PATH}"
+
 # ── just ─────────────────────────────────────────────────────────
 RUN curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
 
