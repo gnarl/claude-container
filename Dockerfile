@@ -57,6 +57,11 @@ RUN mkdir -p /home/coder/.claude/skills \
     && cp -r /tmp/superpowers/skills/* /home/coder/.claude/skills/ \
     && rm -rf /tmp/superpowers
 
+# ── Cantrips skills ─────────────────────────────────────────────
+RUN git clone https://github.com/gnarl/cantrips.git /tmp/cantrips \
+    && cp -r /tmp/cantrips/skills/* /home/coder/.claude/skills/ \
+    && rm -rf /tmp/cantrips
+
 # ── RTK (Rust Token Killer) ───────────────────────────────────────
 # NOTE: Must run AFTER the config COPY steps above — rtk init patches
 #       /home/coder/.claude/settings.json in place and appends
